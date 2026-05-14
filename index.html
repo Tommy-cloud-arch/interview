@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>영어 통번역 연습</title>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="영어 통번역">
+<meta name="theme-color" content="#10b981">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ══ TOKENS ═══════════════════════════════════ */
+:root {
+  --accent:       #10b981;
+  --accent-dark:  #047857;
+  --accent-soft:  #ecfdf5;
+  --ink:          #0f172a;
+  --text:         #1e293b;
+  --muted:        #64748b;
+  --line:         #e2e8f0;
+  --surf-soft:    #f8fafc;
+  --danger:       #dc2626;
+  --bg1:          #f0fdf4;
+  --bg2:          #f8fafc;
+  --sh-sm: 0 8px 24px rgba(15,23,42,.06);
+  --sh-md: 0 18px 42px rgba(15,23,42,.10);
+  --sh-lg: 0 28px 64px rgba(15,23,42,.14);
+}
+html[data-theme="dark"] {
+  --accent:       #34d399;
+  --accent-dark:  #6ee7b7;
+  --accent-soft:  rgba(16,185,129,.13);
+  --ink:          #f8fafc;
+  --text:         #e2e8f0;
+  --muted:        #94a3b8;
+  --line:         rgba(148,163,184,.22);
+  --surf-soft:    rgba(30,41,59,.72);
+  --danger:       #f87171;
+  --bg1:          #020617;
+  --bg2:          #0f172a;
+  --sh-sm: 0 8px 24px rgba(0,0,0,.24);
+  --sh-md: 0 18px 42px rgba(0,0,0,.34);
+  --sh-lg: 0 28px 64px rgba(0,0,0,.44);
+}
+html[data-theme="dark"] body {
+  background:
+    radial-gradient(circle at top left,  rgba(52,211,153,.14), transparent 30%),
+    radial-gradient(circle at top right, rgba(56,189,248,.10), transparent 24%),
+    linear-gradient(180deg, var(--bg1), var(--bg2));
+}
+
+/* ══ RESET ════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  width: 100%; min-height: 100%; overflow-x: hidden;
+  font-family: 'Noto Sans KR', system-ui, -apple-system, sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top left,  rgba(16,185,129,.12), transparent 28%),
+    radial-gradient(circle at top right, rgba(14,165,233,.08), transparent 22%),
+    linear-gradient(180deg, var(--bg1), var(--bg2));
+}
+button { font-family: inherit; }
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ══ SVG ICONS ════════════════════════════════ */
+.svg-icon {
+  width: 1.18em; height: 1.18em;
+  display: inline-block; vertical-align: -0.16em;
+  stroke: currentColor; fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+.home-btn .svg-icon, .nav-arrow .svg-icon,
+.tts-btn .svg-icon, .icon-mark .svg-icon,
+.theme-toggle .svg-icon { width: 20px; height: 20px; }
+.menu-icon .svg-icon         { width: 26px; height: 26px; }
+.search-icon .svg-icon       { width: 19px; height: 19px; }
+.hint-icon .svg-icon         { width: 22px; height: 22px; }
+.brand-mark .svg-icon        { width: 16px; height: 16px; }
+.usage-toggle-icon .svg-icon { width: 22px; height: 22px; }
+.fav-del .svg-icon           { width: 17px; height: 17px; }
+.empty-state .svg-icon       { width: 42px; height: 42px; color: var(--accent-dark); margin: 0 auto 12px; display: block; }
+
+/* ══ TOP BAR ══════════════════════════════════ */
+.top-bar {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 12px;
+  min-height: 74px; padding: 14px 18px;
+  background: rgba(255,255,255,.72);
+  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(226,232,240,.85);
+}
+html[data-theme="dark"] .top-bar {
+  background: rgba(15,23,42,.72); border-bottom-color: var(--line);
+}
+.top-slot       { flex: 0 0 auto; display: flex; align-items: center; }
+.top-slot.grow  { flex: 1 1 auto; min-width: 0; justify-content: center; }
+.top-slot.right { justify-content: flex-end; }
+.top-actions    { display: inline-flex; align-items: center; gap: 8px; }
+.brand-title {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: clamp(1.05rem, 2vw, 1.2rem); font-weight: 800; color: var(--ink);
+}
+.brand-mark {
+  width: 28px; height: 28px; flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(16,185,129,.18), rgba(14,165,233,.12));
+  color: var(--accent-dark);
+}
+.top-title {
+  font-size: clamp(1.05rem, 2vw, 1.2rem); font-weight: 800; color: var(--ink);
+  text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ══ BUTTONS ══════════════════════════════════ */
+.icon-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px; min-height: 44px; padding: 10px 14px;
+  border: 1px solid var(--line); border-radius: 999px;
+  background: rgba(255,255,255,.9); color: var(--ink);
+  font-size: .92rem; font-weight: 700;
+  box-shadow: var(--sh-sm); cursor: pointer;
+  transition: transform .18s, box-shadow .18s, border-color .18s, background .18s;
+  -webkit-tap-highlight-color: transparent;
+}
+.icon-btn:hover { transform: translateY(-1px); border-color: rgba(16,185,129,.35); box-shadow: var(--sh-md); background: #fff; }
+html[data-theme="dark"] .icon-btn { background: rgba(15,23,42,.82); color: var(--ink); border-color: var(--line); }
+
+.home-btn, .nav-arrow, .theme-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 46px; height: 46px; border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.92); color: var(--ink);
+  box-shadow: var(--sh-sm); cursor: pointer;
+  transition: transform .18s, box-shadow .18s, border-color .18s;
+  -webkit-tap-highlight-color: transparent;
+}
+.home-btn:hover, .nav-arrow:hover, .theme-toggle:hover {
+  transform: translateY(-1px); border-color: rgba(16,185,129,.4); box-shadow: var(--sh-md);
+}
+.nav-arrow:disabled { opacity: .4; pointer-events: none; }
+html[data-theme="dark"] .home-btn,
+html[data-theme="dark"] .nav-arrow,
+html[data-theme="dark"] .theme-toggle { background: rgba(15,23,42,.82); color: var(--ink); border-color: var(--line); }
+
+.main-menu-link {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 44px; padding: 10px 18px;
+  border: 1px solid rgba(16,185,129,.28); border-radius: 999px;
+  background: linear-gradient(180deg, #ffffff, var(--accent-soft));
+  color: var(--accent-dark); font-size: .92rem; font-weight: 800;
+  box-shadow: var(--sh-sm); cursor: pointer;
+  transition: transform .18s, box-shadow .18s;
+  -webkit-tap-highlight-color: transparent;
+}
+.main-menu-link:hover { transform: translateY(-1px); box-shadow: var(--sh-md); }
+html[data-theme="dark"] .main-menu-link { background: rgba(15,23,42,.82); color: var(--ink); border-color: var(--line); }
+
+.ctrl-btn {
+  min-height: 44px; padding: 10px 16px;
+  border-radius: 999px; border: 1px solid var(--line);
+  background: rgba(255,255,255,.94); color: var(--ink);
+  font-size: .88rem; font-weight: 700;
+  cursor: pointer; box-shadow: none !important;
+  transition: transform .18s, border-color .18s, background .18s;
+  -webkit-tap-highlight-color: transparent;
+}
+.ctrl-btn:hover { transform: translateY(-1px); border-color: rgba(16,185,129,.34); }
+.ctrl-btn.active { background: linear-gradient(180deg, #10b981, #059669); color: #fff; border-color: transparent; }
+html[data-theme="dark"] .ctrl-btn { background: rgba(15,23,42,.82); color: var(--ink); border-color: var(--line); }
+
+.icon-mark {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.95); color: var(--accent-dark);
+  box-shadow: none !important; cursor: pointer;
+  transition: transform .18s, box-shadow .18s, border-color .18s;
+  -webkit-tap-highlight-color: transparent;
+}
+.icon-mark:hover { transform: translateY(-1px) scale(1.03); box-shadow: var(--sh-md) !important; border-color: rgba(16,185,129,.34); }
+html[data-theme="dark"] .icon-mark { background: rgba(15,23,42,.82); color: var(--accent); border-color: var(--line); }
+
+.show-answer-btn {
+  min-height: 54px; width: 100%;
+  border: 0; border-radius: 18px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff; font-size: 1rem; font-weight: 800;
+  box-shadow: var(--sh-md); cursor: pointer;
+  transition: transform .18s, box-shadow .18s;
+  -webkit-tap-highlight-color: transparent;
+}
+.show-answer-btn:hover { transform: translateY(-1px); box-shadow: var(--sh-lg); }
+
+/* ══ LAYOUT ═══════════════════════════════════ */
+.menu-body, .learn-body, .list-body {
+  width: min(980px, calc(100% - 28px)); margin: 0 auto;
+}
+.menu-body  { padding: 28px 0 70px; }
+.learn-body { padding: 22px 0 70px; display: flex; flex-direction: column; gap: 16px; }
+.list-body  { padding: 24px 0 70px; }
+
+/* ══ HOME — Hero + Menu grid ══════════════════ */
+.hero-card {
+  background: linear-gradient(145deg, rgba(255,255,255,.94), rgba(255,255,255,.82));
+  border: 1px solid rgba(226,232,240,.92);
+  border-radius: 30px; box-shadow: var(--sh-lg);
+  padding: clamp(24px, 4vw, 36px);
+}
+html[data-theme="dark"] .hero-card {
+  background: linear-gradient(180deg, rgba(15,23,42,.88), rgba(15,23,42,.72));
+  border-color: var(--line);
+}
+.menu-title {
+  font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 800; color: var(--ink);
+  text-align: center; margin-bottom: 10px;
+}
+.menu-subtitle {
+  text-align: center; color: var(--muted); font-size: .98rem;
+  line-height: 1.65; max-width: 640px; margin: 0 auto 26px;
+}
+.menu-grid {
+  display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px;
+}
+.menu-btn {
+  min-height: 92px;
+  border: 1px solid rgba(226,232,240,.95); border-radius: 24px;
+  background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(248,250,252,.88));
+  box-shadow: var(--sh-md);
+  cursor: pointer; padding: 16px 18px;
+  display: flex; flex-direction: row; align-items: center; gap: 14px;
+  text-align: left;
+  transition: transform .2s, box-shadow .2s, border-color .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.menu-btn:hover { transform: translateY(-3px); box-shadow: var(--sh-lg); border-color: rgba(16,185,129,.34); }
+html[data-theme="dark"] .menu-btn { background: rgba(15,23,42,.82); border-color: var(--line); }
+
+.btn-inner { display: flex; flex-direction: row; align-items: center; gap: 12px; flex: 1 1 auto; min-width: 0; }
+.menu-icon {
+  width: 48px; height: 48px; flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 16px;
+}
+/* Tab-specific icon colours */
+.mi-words {
+  background: linear-gradient(180deg,#ecfdf5,#fff); color: #047857;
+  box-shadow: inset 0 0 0 1px rgba(16,185,129,.15);
+}
+.mi-sentences {
+  background: linear-gradient(180deg,#eff6ff,#fff); color: #1d4ed8;
+  box-shadow: inset 0 0 0 1px rgba(59,130,246,.15);
+}
+.mi-books {
+  background: linear-gradient(180deg,#f5f3ff,#fff); color: #6d28d9;
+  box-shadow: inset 0 0 0 1px rgba(139,92,246,.15);
+}
+html[data-theme="dark"] .mi-words     { background: rgba(6,78,59,.4);   color: #34d399; box-shadow: none; }
+html[data-theme="dark"] .mi-sentences { background: rgba(30,58,138,.4); color: #93c5fd; box-shadow: none; }
+html[data-theme="dark"] .mi-books     { background: rgba(76,29,149,.4); color: #c4b5fd; box-shadow: none; }
+
+.btn-text { display: flex; flex-direction: column; gap: 5px; min-width: 0; flex: 1; }
+.menu-label {
+  font-size: 1.05rem; font-weight: 800; color: var(--ink);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.menu-count {
+  display: inline-flex; align-items: center;
+  padding: 4px 10px; border-radius: 999px;
+  background: var(--surf-soft); font-size: .78rem; font-weight: 800;
+  border: 1px solid rgba(16,185,129,.14); align-self: flex-start;
+}
+.mc-words     { color: #047857; }
+.mc-sentences { color: #1d4ed8; }
+.mc-books     { color: #6d28d9; }
+html[data-theme="dark"] .mc-words     { color: #34d399; }
+html[data-theme="dark"] .mc-sentences { color: #93c5fd; }
+html[data-theme="dark"] .mc-books     { color: #c4b5fd; }
+html[data-theme="dark"] .menu-count   { background: var(--surf-soft); border-color: var(--line); }
+
+/* ══ USAGE GUIDE ═══════════════════════════════ */
+.usage-guide {
+  margin-top: 18px;
+  border: 1px solid rgba(16,185,129,.18); border-radius: 24px;
+  background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(236,253,245,.72));
+  box-shadow: var(--sh-sm); overflow: hidden;
+}
+html[data-theme="dark"] .usage-guide {
+  background: linear-gradient(180deg, rgba(15,23,42,.88), rgba(15,23,42,.72));
+  border-color: var(--line);
+}
+.usage-toggle {
+  width: 100%; min-height: 64px; border: 0;
+  background: transparent; color: var(--ink);
+  padding: 16px 18px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  cursor: pointer; font-weight: 800; font-size: 1rem; text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+.usage-toggle-left { display: inline-flex; align-items: center; gap: 12px; }
+.usage-toggle-icon {
+  width: 42px; height: 42px; border-radius: 15px; flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--accent-soft); color: var(--accent-dark);
+}
+.usage-chevron { transition: transform .18s; color: var(--muted); }
+.usage-guide.open .usage-chevron { transform: rotate(90deg); }
+.usage-content {
+  display: none; border-top: 1px solid rgba(16,185,129,.16);
+  padding: 18px; color: var(--text);
+}
+html[data-theme="dark"] .usage-content { border-top-color: var(--line); }
+.usage-guide.open .usage-content { display: block; }
+.usage-content h3 { font-size: 1rem; color: var(--ink); margin: 0 0 10px; }
+.usage-list {
+  display: grid; grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 10px 16px; list-style: none;
+}
+.usage-list li {
+  position: relative; padding-left: 15px;
+  line-height: 1.58; font-size: .93rem; color: var(--muted);
+}
+.usage-list li::before {
+  content: ''; position: absolute; left: 0; top: .72em;
+  width: 6px; height: 6px; border-radius: 999px; background: var(--accent);
+}
+.usage-list strong { color: var(--ink); font-weight: 800; }
+
+/* ══ LEARN ════════════════════════════════════ */
+.learn-sheet-heading {
+  text-align: center; color: var(--muted); font-size: .95rem; font-weight: 700;
+}
+.card {
+  position: relative;
+  background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.90));
+  border: 1px solid rgba(226,232,240,.92);
+  border-radius: 28px; box-shadow: var(--sh-lg);
+  min-height: 190px; padding: 34px 28px 30px;
+}
+html[data-theme="dark"] .card {
+  background: linear-gradient(180deg, rgba(15,23,42,.88), rgba(15,23,42,.72));
+  border-color: var(--line);
+}
+.card-label {
+  position: absolute; top: 0; left: 22px; transform: translateY(-1px);
+  padding: 7px 12px; border-radius: 0 0 14px 14px;
+  background: var(--accent); color: white;
+  font-size: .74rem; letter-spacing: .04em; font-weight: 800;
+}
+.card-text {
+  width: 100%; font-size: clamp(1.1rem, 2.4vw, 1.4rem);
+  line-height: 1.75; font-weight: 500; word-break: keep-all; color: var(--ink);
+}
+.answer-cover {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  border-radius: 28px; background: rgba(255,255,255,.96);
+  color: var(--muted); font-weight: 700; font-size: .96rem; z-index: 10;
+}
+html[data-theme="dark"] .answer-cover { background: rgba(15,23,42,.96); }
+.answer-cover.hide { display: none; }
+.tts-btn {
+  position: absolute; right: 18px; bottom: 18px;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; border-radius: 999px;
+  border: 1px solid rgba(226,232,240,.95);
+  background: linear-gradient(180deg, #fff, var(--accent-soft));
+  box-shadow: var(--sh-sm); cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.tts-btn:hover { box-shadow: var(--sh-md); }
+html[data-theme="dark"] .tts-btn { background: rgba(15,23,42,.82); border-color: var(--line); }
+
+/* Progress */
+.progress-wrap, .nav-panel, .list-panel {
+  background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.86));
+  border: 1px solid rgba(226,232,240,.92); border-radius: 24px;
+  box-shadow: var(--sh-md); padding: 16px 18px;
+}
+html[data-theme="dark"] .progress-wrap,
+html[data-theme="dark"] .nav-panel,
+html[data-theme="dark"] .list-panel {
+  background: linear-gradient(180deg, rgba(15,23,42,.88), rgba(15,23,42,.72));
+  border-color: var(--line);
+}
+.progress-info {
+  display: flex; justify-content: space-between; align-items: center;
+  color: var(--muted); font-size: .9rem; font-weight: 700; margin-bottom: 10px;
+}
+.progress-bar-track {
+  height: 10px; border-radius: 999px; overflow: hidden;
+  background: #e5e7eb; margin-bottom: 12px;
+}
+html[data-theme="dark"] .progress-bar-track { background: rgba(51,65,85,.9); }
+.progress-bar-fill {
+  height: 100%; width: 0; border-radius: 999px;
+  background: linear-gradient(90deg, #34d399, #10b981);
+  transition: width .25s ease;
+}
+#progressSlider { width: 100%; accent-color: var(--accent); }
+
+/* Nav panel layout */
+.nav-panel {
+  display: flex !important; flex-direction: column !important;
+  align-items: stretch !important; gap: 12px !important; padding: 12px !important;
+}
+.controls-center {
+  order: 1; display: flex; align-items: center; justify-content: center;
+  gap: 8px; flex-wrap: wrap;
+  background: var(--surf-soft);
+  border: 1px solid rgba(226,232,240,.72); border-radius: 999px; padding: 6px;
+}
+html[data-theme="dark"] .controls-center { background: rgba(30,41,59,.72); border-color: var(--line); }
+.nav-arrows {
+  order: 2; display: flex; align-items: center;
+  justify-content: space-between; gap: 12px; width: 100%;
+}
+
+/* ══ LIST SCREENS ═════════════════════════════ */
+.list-panel { padding: 18px; }
+.list-search-wrap { position: relative; margin-bottom: 14px; }
+.list-search-wrap .search-icon {
+  position: absolute; left: 16px; top: 50%;
+  transform: translateY(-50%); color: var(--muted);
+}
+.list-search-wrap input {
+  width: 100%; min-height: 50px;
+  border: 1px solid var(--line); border-radius: 18px;
+  background: rgba(255,255,255,.95); color: var(--ink);
+  outline: none; padding: 13px 16px 13px 46px;
+  font-size: .98rem; font-family: inherit; box-shadow: var(--sh-sm);
+}
+.list-search-wrap input:focus {
+  border-color: rgba(16,185,129,.48);
+  box-shadow: 0 0 0 4px rgba(16,185,129,.12), var(--sh-sm);
+}
+html[data-theme="dark"] .list-search-wrap input {
+  background: rgba(15,23,42,.82); color: var(--ink); border-color: var(--line);
+}
+.empty-state { text-align: center; color: var(--muted); padding: 42px 18px; font-size: 1rem; }
+.fav-card {
+  position: relative; padding: 20px 52px 18px 20px;
+  background: linear-gradient(180deg, #fff, #fbfdff);
+  border: 1px solid rgba(226,232,240,.92); border-radius: 22px;
+  box-shadow: var(--sh-sm);
+  transition: transform .18s, box-shadow .18s, border-color .18s;
+}
+html[data-theme="dark"] .fav-card {
+  background: linear-gradient(180deg, rgba(15,23,42,.88), rgba(15,23,42,.72));
+  border-color: var(--line);
+}
+.fav-card + .fav-card { margin-top: 12px; }
+.fav-card:hover { transform: translateY(-2px); box-shadow: var(--sh-md); border-color: rgba(16,185,129,.32); }
+.fav-sheet { display: inline-flex; align-items: center; gap: 6px; font-size: .78rem; font-weight: 800; color: var(--accent-dark); margin-bottom: 8px; }
+.fav-ko    { font-size: 1rem; font-weight: 600; line-height: 1.65; color: var(--ink); margin-bottom: 6px; }
+.fav-en    { font-size: .94rem; color: var(--muted); line-height: 1.6; }
+.fav-del {
+  position: absolute; top: 14px; right: 14px;
+  width: 34px; height: 34px; border-radius: 999px;
+  border: 1px solid transparent; background: transparent;
+  color: var(--muted); cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.fav-del:hover { background: #fef2f2; color: var(--danger); border-color: #fecaca; }
+
+/* ══ SHEET PICKER MODAL ═══════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(0,0,0,.46);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.modal-overlay.hide { display: none; }
+.modal-box {
+  background: rgba(255,255,255,.97);
+  border: 1px solid rgba(226,232,240,.92);
+  border-radius: 28px; box-shadow: var(--sh-lg);
+  width: min(440px, 100%);
+  max-height: 82vh; overflow-y: auto;
+  padding: 28px 22px 22px;
+}
+html[data-theme="dark"] .modal-box {
+  background: rgba(15,23,42,.97); border-color: var(--line);
+}
+.modal-title {
+  font-size: 1.15rem; font-weight: 800; color: var(--ink);
+  margin-bottom: 18px; text-align: center;
+}
+.modal-tabs { display: flex; flex-direction: column; gap: 10px; }
+.modal-tab-btn {
+  width: 100%; min-height: 60px;
+  border: 1px solid rgba(226,232,240,.95); border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(248,250,252,.88));
+  box-shadow: var(--sh-sm); cursor: pointer;
+  padding: 14px 18px;
+  display: flex; align-items: center; gap: 12px;
+  font-family: inherit; font-size: 1rem; font-weight: 700; color: var(--ink);
+  transition: transform .18s, box-shadow .18s, border-color .18s;
+  -webkit-tap-highlight-color: transparent;
+}
+.modal-tab-btn:hover { transform: translateY(-2px); box-shadow: var(--sh-md); border-color: rgba(16,185,129,.38); }
+html[data-theme="dark"] .modal-tab-btn { background: rgba(15,23,42,.82); border-color: var(--line); }
+.modal-tab-icon {
+  width: 42px; height: 42px; flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 14px; font-size: 1.25rem;
+}
+.modal-tab-name { flex: 1; text-align: left; font-size: 1rem; font-weight: 700; }
+.modal-tab-count { font-size: .78rem; font-weight: 700; color: var(--muted); }
+.modal-close {
+  width: 100%; min-height: 44px; margin-top: 14px;
+  border: 1px solid var(--line); border-radius: 999px;
+  background: transparent; color: var(--muted);
+  font-family: inherit; font-size: .92rem; font-weight: 700; cursor: pointer;
+  transition: background .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.modal-close:hover { background: var(--surf-soft); }
+.modal-loading { text-align: center; color: var(--muted); padding: 28px; font-size: .96rem; }
+
+/* ══ LOADING ══════════════════════════════════ */
+#loadingOverlay {
+  position: fixed; inset: 0; display: none;
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 14px;
+  background: rgba(255,255,255,.72);
+  backdrop-filter: blur(8px); z-index: 999;
+  color: var(--muted); font-weight: 700;
+}
+html[data-theme="dark"] #loadingOverlay { background: rgba(2,6,23,.7); }
+#loadingOverlay.show { display: flex; }
+.spinner {
+  width: 46px; height: 46px; border-radius: 50%;
+  border: 3px solid rgba(16,185,129,.16);
+  border-top-color: var(--accent);
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ══ RESPONSIVE ═══════════════════════════════ */
+@media (max-width: 860px) {
+  .menu-grid { grid-template-columns: 1fr; }
+  .menu-btn  { min-height: 78px; padding: 14px 16px; }
+  .usage-list { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .top-bar   { min-height: 68px; padding: 12px; gap: 8px; }
+  .icon-btn  { padding: 9px 12px; font-size: .86rem; }
+  .icon-btn .label-text { display: none; }
+  .card      { min-height: 160px; padding: 30px 20px 24px; border-radius: 22px; }
+  .card-text { font-size: 1.08rem; }
+  .answer-cover { border-radius: 22px; }
+  .ctrl-btn  { min-height: 40px; padding: 8px 12px; font-size: .84rem; }
+  .icon-mark { width: 40px; height: 40px; }
+  .nav-arrows .nav-arrow { width: 44px; height: 44px; }
+  .menu-icon { width: 44px !important; height: 44px !important; }
+  .usage-toggle  { min-height: 58px; padding: 14px 15px; }
+  .usage-content { padding: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay">
+  <div class="spinner"></div>
+  <span>불러오는 중...</span>
+</div>
+
+
+<!-- ════════════════════════════════════
+     HOME
+════════════════════════════════════ -->
+<div id="screen-home" class="screen active">
+  <div class="top-bar">
+    <div class="top-slot top-actions">
+      <button class="icon-btn" id="goFavorite">
+        <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/>
+        </svg>
+        <span class="label-text">단어장</span>
+      </button>
+      <button class="icon-btn" id="goSaved">
+        <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/>
+        </svg>
+        <span class="label-text">북마크</span>
+      </button>
+    </div>
+    <div class="top-slot grow">
+      <span class="brand-title">
+        <span class="brand-mark">
+          <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/>
+            <path d="M19 14l.8 2.2L22 17l-2.2.8L19 20l-.8-2.2L16 17l2.2-.8z"/>
+          </svg>
+        </span>
+        영어 통번역
+      </span>
+    </div>
+    <div class="top-slot right">
+      <button class="theme-toggle" id="themeHome" aria-label="다크모드 전환"></button>
+    </div>
+  </div>
+
+  <div class="menu-body">
+    <div class="hero-card">
+      <div class="menu-title">🇺🇸 영어 통번역 연습</div>
+      <div class="menu-subtitle">학습할 자료 유형을 선택하세요. 단어장 · 북마크 기능으로 중요 문장을 저장하고 관리할 수 있습니다.</div>
+
+      <div class="menu-grid">
+
+        <button class="menu-btn" data-tab="words">
+          <div class="btn-inner">
+            <div class="menu-icon mi-words">
+              <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/>
+              </svg>
+            </div>
+            <div class="btn-text">
+              <div class="menu-label">단어 Words</div>
+              <span class="menu-count mc-words" id="wordsCount">-</span>
+            </div>
+          </div>
+        </button>
+
+        <button class="menu-btn" data-tab="sentences">
+          <div class="btn-inner">
+            <div class="menu-icon mi-sentences">
+              <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M21 12a8 8 0 0 1-8 8H6l-3 2 1.5-4A8 8 0 1 1 21 12z"/>
+                <path d="M8 10h8"/><path d="M8 14h5"/>
+              </svg>
+            </div>
+            <div class="btn-text">
+              <div class="menu-label">문장 Sentences</div>
+              <span class="menu-count mc-sentences" id="sentencesCount">-</span>
+            </div>
+          </div>
+        </button>
+
+        <button class="menu-btn" data-tab="books">
+          <div class="btn-inner">
+            <div class="menu-icon mi-books">
+              <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M4 19V5a2 2 0 0 1 2-2h4v18H6a2 2 0 0 1-2-2z"/>
+                <path d="M10 3h4v18h-4"/>
+                <path d="M14 4h4a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2h-4"/>
+              </svg>
+            </div>
+            <div class="btn-text">
+              <div class="menu-label">독해 Books</div>
+              <span class="menu-count mc-books" id="booksCount">-</span>
+            </div>
+          </div>
+        </button>
+
+      </div>
+
+      <!-- Usage Guide -->
+      <div class="usage-guide" id="usageGuide">
+        <button class="usage-toggle" id="usageToggle" type="button" aria-expanded="false">
+          <span class="usage-toggle-left">
+            <span class="usage-toggle-icon">
+              <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 8h.01"/><path d="M11 12h1v4h1"/>
+              </svg>
+            </span>
+            <span id="usageLabel">사용법 보기</span>
+          </span>
+          <span class="usage-chevron">
+            <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path d="m9 18 6-6-6-6"/>
+            </svg>
+          </span>
+        </button>
+        <div class="usage-content" id="usageContent"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     LEARN
+════════════════════════════════════ -->
+<div id="screen-learn" class="screen">
+  <div class="top-bar">
+    <div class="top-slot">
+      <button class="home-btn" id="learnGoHome" aria-label="홈으로">
+        <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M3 11.5 12 4l9 7.5"/>
+          <path d="M5 10.5V21h5v-6h4v6h5V10.5"/>
+        </svg>
+      </button>
+    </div>
+    <div class="top-slot grow">
+      <button class="main-menu-link" id="learnMainMenuBtn" type="button">홈으로</button>
+    </div>
+    <div class="top-slot right">
+      <button class="theme-toggle" id="themeLearn" aria-label="다크모드 전환"></button>
+    </div>
+  </div>
+
+  <div class="learn-body">
+    <div class="learn-sheet-heading" id="learnTitle">단어 — 1번</div>
+
+    <!-- Question -->
+    <div class="card">
+      <div class="card-label" id="questionLabel">KO 한국어</div>
+      <div class="card-text"  id="learnQuestion"></div>
+      <button class="tts-btn" id="ttsQ" aria-label="문제 읽기">
+        <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M4 9v6h4l5 4V5L8 9z"/>
+          <path d="M16 9.5a4 4 0 0 1 0 5"/>
+          <path d="M19 7a8 8 0 0 1 0 10"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Answer -->
+    <div class="card">
+      <div class="card-label" id="answerLabel" style="background:#475569">EN 영어</div>
+      <div class="answer-cover" id="answerCover">
+        <span class="hint-icon">
+          <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M21 12a8 8 0 0 1-8 8H6l-3 2 1.5-4A8 8 0 1 1 21 12z"/>
+            <path d="M8 10h8"/><path d="M8 14h5"/>
+          </svg>
+        </span>
+        통역하여 말해보세요
+      </div>
+      <div class="card-text" id="learnAnswer"></div>
+      <button class="tts-btn" id="ttsA" aria-label="정답 읽기">
+        <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M4 9v6h4l5 4V5L8 9z"/>
+          <path d="M16 9.5a4 4 0 0 1 0 5"/>
+          <path d="M19 7a8 8 0 0 1 0 10"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-wrap">
+      <div class="progress-info">
+        <span id="progressText">1 / 1</span>
+        <span id="progressPct">0%</span>
+      </div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progressFill"></div>
+      </div>
+      <input type="range" id="progressSlider" min="1" max="1" value="1">
+    </div>
+
+    <!-- Nav Panel -->
+    <div class="nav-panel">
+      <div class="controls-center">
+        <button class="icon-mark" id="learnBookmark" aria-label="단어장" title="단어장">
+          <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/>
+          </svg>
+        </button>
+        <button class="ctrl-btn" id="learnSwitch">KO ↔ EN</button>
+        <button class="ctrl-btn" id="answerToggleBtn">정답 항상 끄기</button>
+        <button class="icon-mark" id="learnSaveIcon" aria-label="북마크" title="북마크">
+          <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/>
+          </svg>
+        </button>
+      </div>
+      <div class="nav-arrows">
+        <button class="nav-arrow" id="learnPrev" aria-label="이전">
+          <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="m15 18-6-6 6-6"/>
+          </svg>
+        </button>
+        <button class="nav-arrow" id="learnNext" aria-label="다음">
+          <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="m9 18 6-6-6-6"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <button class="show-answer-btn" id="showAnswerBtn">정답 보기 / 숨기기</button>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     FAVORITE
+════════════════════════════════════ -->
+<div id="screen-favorite" class="screen">
+  <div class="top-bar">
+    <div class="top-slot">
+      <button class="home-btn" onclick="showScreen('home')" aria-label="홈으로">
+        <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M3 11.5 12 4l9 7.5"/><path d="M5 10.5V21h5v-6h4v6h5V10.5"/>
+        </svg>
+      </button>
+    </div>
+    <div class="top-slot grow"><div class="top-title">단어장</div></div>
+    <div class="top-slot right">
+      <button class="theme-toggle" id="themeFav" aria-label="다크모드 전환"></button>
+    </div>
+  </div>
+  <div class="list-body">
+    <div class="list-search-wrap">
+      <span class="search-icon">
+        <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+        </svg>
+      </span>
+      <input id="favoriteSearch" placeholder="단어장 검색..." type="text">
+    </div>
+    <div class="list-panel" id="favoriteList"></div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     SAVED
+════════════════════════════════════ -->
+<div id="screen-saved" class="screen">
+  <div class="top-bar">
+    <div class="top-slot">
+      <button class="home-btn" onclick="showScreen('home')" aria-label="홈으로">
+        <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M3 11.5 12 4l9 7.5"/><path d="M5 10.5V21h5v-6h4v6h5V10.5"/>
+        </svg>
+      </button>
+    </div>
+    <div class="top-slot grow"><div class="top-title">북마크</div></div>
+    <div class="top-slot right">
+      <button class="theme-toggle" id="themeSaved" aria-label="다크모드 전환"></button>
+    </div>
+  </div>
+  <div class="list-body">
+    <div class="list-search-wrap">
+      <span class="search-icon">
+        <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+        </svg>
+      </span>
+      <input id="savedSearch" placeholder="북마크 검색..." type="text">
+    </div>
+    <div class="list-panel" id="savedList"></div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     SHEET PICKER MODAL
+════════════════════════════════════ -->
+<div id="sheetPickerModal" class="modal-overlay hide">
+  <div class="modal-box">
+    <div class="modal-title" id="pickerTitle">시트 선택</div>
+    <div class="modal-tabs" id="pickerTabs"></div>
+    <button class="modal-close" id="pickerClose" type="button">닫기</button>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     SCRIPT
+════════════════════════════════════ -->
+<script>
+const SHEET_ID  = '10UzPEi1eDwrYFYi0dPjUDrRSHkxW6Je4Kt3VhHgt1mY';
+const TAB_LABEL = { words:'📚 단어', sentences:'💬 문장', books:'📖 독해' };
+const COUNT_ID  = { words:'wordsCount', sentences:'sentencesCount', books:'booksCount' };
+
+const SHEETS_API_KEY  = 'AIzaSyC-OVbR7yvIm0KoY-8zSOt6ENAyxDH4_5k';
+const BOOKS_TABS      = ['가정생활(책)'];
+const SENTENCES_TABS  = ['인터뷰(문장)'];
+const TAB_KEYWORDS    = { books: '책', sentences: '문장' };
+const tabMetaCache    = {};          // { _all: [...] }
+
+/* ── SVG Icon strings ── */
+const IC = {
+  book: `<svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/></svg>`,
+  bookFilled: `<svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/><path d="M8 6h8"/><path d="M8 10h6"/></svg>`,
+  bkm: `<svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/></svg>`,
+  bkmFilled: `<svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/><path d="M9 7h6"/></svg>`,
+  moon: `<svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 15.5A8.5 8.5 0 0 1 8.5 3 7 7 0 1 0 21 15.5z"/></svg>`,
+  sun: `<svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>`,
+  x: `<svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`,
+  alert: `<svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 3 2 21h20z"/><path d="M12 9v5"/><path d="M12 18h.01"/></svg>`
+};
+
+/* ── State ── */
+let currentTab = 'words', sentences = [], currentIdx = 0;
+let learnMode  = 'KR_TO_EN', alwaysShow = false;
+let bookmarks  = JSON.parse(localStorage.getItem('eng_bookmarks')  || '{}');
+let savedPages = JSON.parse(localStorage.getItem('eng_savedPages') || '[]');
+let favItems   = [], savedItems = [];
+const dataCache = {};
+const $        = id => document.getElementById(id);
+const overlay  = $('loadingOverlay');
+const cover    = $('answerCover');
+const toggleBtn= $('answerToggleBtn');
+
+/* ── Screen ── */
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $('screen-' + name).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+/* ── Theme ── */
+function setTheme(t) {
+  document.documentElement.dataset.theme = t;
+  localStorage.setItem('theme', t);
+  document.querySelectorAll('.theme-toggle').forEach(b => {
+    b.innerHTML = IC[t === 'dark' ? 'sun' : 'moon'];
+    b.setAttribute('aria-label', t === 'dark' ? '라이트모드 전환' : '다크모드 전환');
+  });
+}
+function initTheme() {
+  const sys = window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  setTheme(localStorage.getItem('theme') || sys);
+  document.querySelectorAll('.theme-toggle').forEach(b =>
+    b.addEventListener('click', () =>
+      setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark')
+    )
+  );
+}
+
+/* ── Loading ── */
+function setLoading(on) { overlay.classList.toggle('show', on); }
+
+/* ── CSV ── */
+async function fetchSheetData(tab) {
+  if (dataCache[tab]) return dataCache[tab];
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const text = await res.text();
+  const rows = parseCSV(text).slice(1);
+  const data = rows.map(r => ({ number: unq(r[0]), korean: unq(r[1]), english: unq(r[2]) }))
+               .filter(r => r.number && (r.korean || r.english));
+  dataCache[tab] = data;
+  const el = $(COUNT_ID[tab]); if (el) el.textContent = `${data.length}개`;
+  return data;
+}
+function unq(s) { return (s||'').replace(/^"|"$/g,'').trim(); }
+function parseCSV(text) {
+  const rows=[]; let row=[],col='',inQ=false;
+  for (let i=0;i<text.length;i++) {
+    const c=text[i],n=text[i+1];
+    if (inQ) {
+      if(c==='"'&&n==='"'){col+='"';i++;}else if(c==='"'){inQ=false;}else{col+=c;}
+    } else {
+      if(c==='"'){inQ=true;}
+      else if(c===','){row.push(col);col='';}
+      else if(c==='\n'||(c==='\r'&&n==='\n')){if(c==='\r')i++;row.push(col);rows.push(row);row=[];col='';}
+      else{col+=c;}
+    }
+  }
+  if(col||row.length){row.push(col);rows.push(row);}
+  return rows;
+}
+
+/* ── Load Tab ── */
+async function loadTab(tab, targetIdx=0) {
+  setLoading(true); currentTab = tab;
+  try {
+    sentences  = await fetchSheetData(tab);
+    currentIdx = (targetIdx>=0&&targetIdx<sentences.length)?targetIdx:0;
+    showScreen('learn'); renderLearn();
+  } catch(e) {
+    alert(`데이터를 불러오지 못했습니다.\n${e.message}\n\n스프레드시트 공유 설정을 확인해주세요.`);
+  } finally { setLoading(false); }
+}
+
+/* ── Render Learn ── */
+function renderLearn() {
+  const item = sentences[currentIdx]; if (!item) return;
+  const total=sentences.length, pos=currentIdx+1, pct=Math.round(pos/total*100);
+
+  $('learnTitle').textContent = `${TAB_LABEL[currentTab]||currentTab} — ${item.number}번  [${pos} / ${total}]`;
+  const q = learnMode==='KR_TO_EN'?item.korean:item.english;
+  const a = learnMode==='KR_TO_EN'?item.english:item.korean;
+  $('learnQuestion').textContent = q;
+  $('learnAnswer').textContent   = a;
+
+  $('questionLabel').textContent    = learnMode==='KR_TO_EN'?'KO 한국어':'EN 영어';
+  $('answerLabel').textContent      = learnMode==='KR_TO_EN'?'EN 영어':'KO 한국어';
+  $('answerLabel').style.background = learnMode==='KR_TO_EN'?'#475569':'var(--accent)';
+
+  $('progressText').textContent = `${pos} / ${total}`;
+  $('progressPct').textContent  = `${pct}%`;
+  $('progressFill').style.width = `${pct}%`;
+  const sl=$('progressSlider'); sl.max=total; sl.value=pos;
+
+  cover.classList.toggle('hide', alwaysShow);
+  $('learnPrev').disabled = currentIdx===0;
+  $('learnNext').disabled = currentIdx===total-1;
+  toggleBtn.textContent = alwaysShow?'정답 항상 켜기':'정답 항상 끄기';
+  toggleBtn.classList.toggle('active', alwaysShow);
+
+  const bKey=`${currentTab}::${item.number}`;
+  $('learnBookmark').innerHTML = bookmarks[bKey]?IC.bookFilled:IC.book;
+  $('learnSaveIcon').innerHTML = savedPages.some(p=>p.tab===currentTab&&String(p.number)===String(item.number))
+    ?IC.bkmFilled:IC.bkm;
+}
+
+/* ── Learn Events ── */
+$('learnGoHome').onclick = $('learnMainMenuBtn').onclick = () => showScreen('home');
+$('learnPrev').onclick = () => { if(currentIdx>0){currentIdx--;renderLearn();} };
+$('learnNext').onclick = () => { if(currentIdx<sentences.length-1){currentIdx++;renderLearn();} };
+$('learnSwitch').onclick = () => { learnMode=learnMode==='KR_TO_EN'?'EN_TO_KR':'KR_TO_EN'; renderLearn(); };
+toggleBtn.onclick = () => { alwaysShow=!alwaysShow; cover.classList.toggle('hide',alwaysShow); renderLearn(); };
+$('showAnswerBtn').onclick = () => cover.classList.toggle('hide');
+$('progressSlider').addEventListener('input', e => {
+  const idx=Number(e.target.value)-1;
+  if(idx>=0&&idx<sentences.length){currentIdx=idx;renderLearn();}
+});
+
+/* ── TTS ── */
+function speak(t,l){if(!t||!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang=l;speechSynthesis.speak(u);}
+$('ttsQ').onclick = () => speak($('learnQuestion').textContent, learnMode==='KR_TO_EN'?'ko-KR':'en-US');
+$('ttsA').onclick = () => speak($('learnAnswer').textContent,   learnMode==='KR_TO_EN'?'en-US':'ko-KR');
+
+/* ── Bookmark (단어장) ── */
+$('learnBookmark').onclick = () => {
+  const item=sentences[currentIdx], key=`${currentTab}::${item.number}`;
+  if(bookmarks[key]) delete bookmarks[key]; else bookmarks[key]={tab:currentTab,...item};
+  localStorage.setItem('eng_bookmarks',JSON.stringify(bookmarks)); renderLearn();
+};
+
+/* ── Save Page (북마크) ── */
+$('learnSaveIcon').onclick = () => {
+  const item=sentences[currentIdx];
+  const i=savedPages.findIndex(p=>p.tab===currentTab&&String(p.number)===String(item.number));
+  if(i>=0) savedPages.splice(i,1); else savedPages.push({tab:currentTab,...item});
+  localStorage.setItem('eng_savedPages',JSON.stringify(savedPages)); renderLearn();
+};
+
+/* ── Sheet Tab Discovery ── */
+async function fetchAllSheetTabs() {
+  if ('_all' in tabMetaCache) return tabMetaCache._all;
+  try {
+    const fields = 'sheets(properties(title))';
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(SHEET_ID)}?fields=${encodeURIComponent(fields)}&key=${encodeURIComponent(SHEETS_API_KEY)}`;
+    const res = await fetch(url);
+    const data = await res.json().catch(() => null);
+    if (!res.ok || data?.error) throw new Error(data?.error?.message || `HTTP ${res.status}`);
+    tabMetaCache._all = (data.sheets || []).map(s => s?.properties?.title).filter(Boolean);
+    return tabMetaCache._all;
+  } catch(e) {
+    console.warn('시트 탭 조회 실패:', e);
+    tabMetaCache._all = null;
+    return null;
+  }
+}
+
+/* ── Sheet Picker ── */
+async function showSheetPicker(tabType) {
+  const keyword = TAB_KEYWORDS[tabType];
+  if (!keyword) { loadTab(tabType); return; }
+
+  // 피커 열기 전에 로딩 표시
+  const pickerTabs = $('pickerTabs');
+  pickerTabs.innerHTML = `<div class="modal-loading">시트 목록 불러오는 중…</div>`;
+  const icon  = tabType === 'books' ? '📖' : '💬';
+  const label = tabType === 'books' ? '독해 Books — 시트 선택' : '문장 Sentences — 시트 선택';
+  $('pickerTitle').textContent = `${icon} ${label}`;
+  $('sheetPickerModal').classList.remove('hide');
+
+  let tabs = null;
+  const allTabs = await fetchAllSheetTabs();
+  if (allTabs) {
+    const apiMatched = allTabs.filter(name => name.includes(keyword));
+    if (apiMatched.length > 0) tabs = apiMatched;
+  }
+  if (!tabs) {
+    tabs = tabType === 'books' ? [...BOOKS_TABS] : [...SENTENCES_TABS];
+  }
+
+  pickerTabs.innerHTML = '';
+
+  if (!tabs || tabs.length === 0) {
+    pickerTabs.innerHTML = `<div class="modal-loading">
+      "조건에 맞는 시트를 찾지 못했습니다.<br>
+      스크립트 상단의 SHEETS_API_KEY 또는<br>
+      BOOKS_TABS / SENTENCES_TABS를 설정해 주세요.</div>`;
+    return;
+  }
+
+  if (tabs.length === 1) {
+    $('sheetPickerModal').classList.add('hide');
+    loadTab(tabs[0]);
+    return;
+  }
+
+  const bgClass = tabType === 'books'
+    ? 'background:linear-gradient(180deg,#f5f3ff,#fff);color:#6d28d9;box-shadow:inset 0 0 0 1px rgba(139,92,246,.15)'
+    : 'background:linear-gradient(180deg,#eff6ff,#fff);color:#1d4ed8;box-shadow:inset 0 0 0 1px rgba(59,130,246,.15)';
+  const emoji = tabType === 'books' ? '📖' : '💬';
+
+  tabs.forEach(tabName => {
+    const btn = document.createElement('button');
+    btn.className = 'modal-tab-btn';
+    btn.type = 'button';
+    const cached = dataCache[tabName];
+    const countHtml = cached
+      ? `<span class="modal-tab-count">${cached.length}개</span>`
+      : '';
+    btn.innerHTML = `
+      <span class="modal-tab-icon" style="${bgClass}">${emoji}</span>
+      <span class="modal-tab-name">${esc(tabName)}</span>
+      ${countHtml}`;
+    btn.onclick = () => {
+      $('sheetPickerModal').classList.add('hide');
+      loadTab(tabName);
+    };
+    pickerTabs.appendChild(btn);
+  });
+}
+
+$('pickerClose').onclick = () => $('sheetPickerModal').classList.add('hide');
+$('sheetPickerModal').addEventListener('click', e => {
+  if (e.target === $('sheetPickerModal')) $('sheetPickerModal').classList.add('hide');
+});
+
+/* ── Home buttons ── */
+document.querySelectorAll('.menu-btn[data-tab]').forEach(btn =>
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.tab;
+    if (tab === 'books' || tab === 'sentences') showSheetPicker(tab);
+    else loadTab(tab);
+  })
+);
+
+/* ── Favorite Screen ── */
+$('goFavorite').onclick = async () => {
+  showScreen('favorite'); setLoading(true);
+  const keys = Object.keys(bookmarks);
+  if (!keys.length) { favItems=[]; renderFavList([]); setLoading(false); return; }
+  try {
+    const items=[];
+    for (const key of keys) {
+      if (key.includes('::')) {
+        const [tab,num]=key.split('::');
+        const rows=await fetchSheetData(tab);
+        const found=rows.find(r=>String(r.number)===String(num));
+        if(found) items.push({...found,tab});
+      }
+    }
+    favItems=items; renderFavList(filterFav());
+  } catch(e) {
+    $('favoriteList').innerHTML=`<div class="empty-state">${IC.alert}<div>단어장을 불러오지 못했습니다</div></div>`;
+  } finally { setLoading(false); }
+};
+function filterFav() {
+  const q=$('favoriteSearch').value.trim().toLowerCase();
+  return q?favItems.filter(i=>[i.tab,i.number,i.korean,i.english].join(' ').toLowerCase().includes(q)):favItems;
+}
+function renderFavList(items) {
+  const box=$('favoriteList'); box.innerHTML='';
+  if (!items.length) {
+    box.innerHTML=`<div class="empty-state">${IC.book}<div>${favItems.length?'검색 결과가 없습니다':'단어장에 저장된 문장이 없습니다'}</div></div>`;
+    return;
+  }
+  items.forEach(item => {
+    const card=document.createElement('div'); card.className='fav-card';
+    card.innerHTML=`<div class="fav-sheet">[${TAB_LABEL[item.tab]||item.tab}] ${item.number}번</div>
+      <div class="fav-ko">${esc(item.korean)}</div>
+      <div class="fav-en">${esc(item.english)}</div>`;
+    const del=document.createElement('button');
+    del.className='fav-del';del.type='button';del.innerHTML=IC.x;
+    del.onclick=e=>{
+      e.stopPropagation();
+      delete bookmarks[`${item.tab}::${item.number}`];
+      localStorage.setItem('eng_bookmarks',JSON.stringify(bookmarks));
+      favItems=favItems.filter(r=>!(r.tab===item.tab&&String(r.number)===String(item.number)));
+      renderFavList(filterFav());
+    };
+    card.appendChild(del); box.appendChild(card);
+  });
+}
+$('favoriteSearch').addEventListener('input', () => renderFavList(filterFav()));
+
+/* ── Saved Screen ── */
+$('goSaved').onclick = () => { showScreen('saved'); savedItems=[...savedPages]; renderSavedList(filterSaved()); };
+function filterSaved() {
+  const q=$('savedSearch').value.trim().toLowerCase();
+  return q?savedItems.filter(i=>[i.tab,i.number,i.korean].join(' ').toLowerCase().includes(q)):savedItems;
+}
+function renderSavedList(items=null) {
+  if (items===null){savedItems=[...savedPages];items=filterSaved();}
+  const box=$('savedList'); box.innerHTML='';
+  if (!items.length) {
+    box.innerHTML=`<div class="empty-state">${IC.bkm}<div>${savedItems.length?'검색 결과가 없습니다':'저장된 북마크가 없습니다'}</div></div>`;
+    return;
+  }
+  items.forEach(item => {
+    const card=document.createElement('div');
+    card.className='fav-card'; card.style.cursor='pointer';
+    card.innerHTML=`<div class="fav-sheet">[${TAB_LABEL[item.tab]||item.tab}] ${item.number}번</div>
+      <div class="fav-ko">${esc(item.korean)}</div>`;
+    card.onclick=()=>{
+      fetchSheetData(item.tab).then(data=>{
+        const idx=data.findIndex(s=>String(s.number)===String(item.number));
+        loadTab(item.tab,idx>=0?idx:0);
+      });
+    };
+    const del=document.createElement('button');
+    del.className='fav-del';del.type='button';del.innerHTML=IC.x;
+    del.onclick=e=>{
+      e.stopPropagation();
+      const i=savedPages.findIndex(p=>p.tab===item.tab&&String(p.number)===String(item.number));
+      if(i>=0)savedPages.splice(i,1);
+      localStorage.setItem('eng_savedPages',JSON.stringify(savedPages));
+      savedItems=[...savedPages];renderSavedList(filterSaved());
+    };
+    card.appendChild(del); box.appendChild(card);
+  });
+}
+$('savedSearch').addEventListener('input', () => renderSavedList(filterSaved()));
+
+/* ── Usage Guide ── */
+const USAGE = [
+  ['단어 / 문장 / 독해','학습할 자료 유형을 선택합니다.'],
+  ['KO ↔ EN','한→영, 영→한 방향으로 학습 언어를 전환합니다.'],
+  ['정답 보기/숨기기','현재 문장의 정답을 즉시 열거나 가립니다.'],
+  ['정답 항상 켜기/끄기','다음 문장 이동 시 정답 표시 여부를 설정합니다.'],
+  ['슬라이더','문장 번호를 빠르게 이동하거나 현재 위치를 확인합니다.'],
+  ['단어장 (책 아이콘)','중요 문장을 저장해 단어장 화면에서 모아볼 수 있습니다.'],
+  ['북마크 (리본 아이콘)','현재 페이지를 저장하고 북마크에서 바로 이동합니다.'],
+  ['스피커 버튼','문제·정답 문장을 TTS 음성으로 들을 수 있습니다.'],
+  ['검색','단어장·북마크 화면에서 텍스트로 검색합니다.'],
+  ['다크모드','달/해 버튼으로 화면 테마를 전환합니다.']
+];
+function renderUsage() {
+  const open=$('usageGuide').classList.contains('open');
+  $('usageLabel').textContent = open?'사용법 닫기':'사용법 보기';
+  $('usageContent').innerHTML = `<h3>버튼과 기능 안내</h3>
+    <ul class="usage-list">${USAGE.map(([t,d])=>`<li><strong>${esc(t)}</strong>: ${esc(d)}</li>`).join('')}</ul>`;
+}
+function initUsage() {
+  const guide=$('usageGuide'),toggle=$('usageToggle');
+  toggle.addEventListener('click', () => {
+    const open=!guide.classList.contains('open');
+    guide.classList.toggle('open',open);
+    toggle.setAttribute('aria-expanded',String(open));
+    renderUsage();
+  });
+}
+
+/* ── Helpers ── */
+function esc(v){return String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');}
+
+/* ── Init ── */
+initTheme();
+initUsage();
+renderUsage();
+
+/* ── Service Worker ── */
+if ('serviceWorker' in navigator)
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(console.error));
+</script>
+</body>
+</html>
